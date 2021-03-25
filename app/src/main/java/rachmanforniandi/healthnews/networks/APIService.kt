@@ -27,23 +27,23 @@ interface APIService {
                      @Field("email")email:String?): Single<ResponseRegister>
 
     @GET("read_health.php")
-    fun getData(): Observable<ResponseRead>
+    fun getDataHealth(): Observable<ResponseRead>
 
     @Multipart
     @POST("insert.php")
-    fun insertData(
+    fun insertDataHealth(
         @Part("title")title:RequestBody,
-        @Part("content_news")content_news:String,
-        @Part("author")author:String,
+        @Part("content_news")content_news:RequestBody,
+        @Part("author")author:RequestBody,
         @Part file:MultipartBody.Part): Single<ResponseInsert>
 
 
     @Multipart
     @POST("update.php")
-    fun updateData(@Field("id")id:String,
+    fun updateData(@Field("id")id:RequestBody,
                    @Part("title")title:RequestBody,
-                   @Part("content_news")content_news:String,
-                   @Part("author")author:String,
+                   @Part("content_news")content_news:RequestBody,
+                   @Part("author")author:RequestBody,
                    @Part file:MultipartBody.Part): Single<ResponseUpdate>
 
     @FormUrlEncoded

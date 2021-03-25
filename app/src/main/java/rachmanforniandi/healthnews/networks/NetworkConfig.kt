@@ -2,6 +2,7 @@ package rachmanforniandi.healthnews.networks
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import rachmanforniandi.healthnews.BuildConfig
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -23,7 +24,7 @@ object NetworkConfig {
 
     fun useRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://192.168.10.56/mahasiswa/")
+            .baseUrl(BuildConfig.URL_SERVICE)
             .client(receivedInterceptor())
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
