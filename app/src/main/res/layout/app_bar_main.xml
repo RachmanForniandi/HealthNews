@@ -21,12 +21,13 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/btn_add_news_health"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        android:background="@android:color/holo_blue_dark"
+        android:src="@drawable/ic_add"
+        android:contentDescription="@string/tombol_tambah_data"  />
 
     <include layout="@layout/content_main" />
 
