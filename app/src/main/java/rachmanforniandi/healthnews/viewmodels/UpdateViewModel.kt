@@ -2,11 +2,9 @@ package rachmanforniandi.healthnews.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.rachmanforniandi.mahasiswacrudapp.model.read.ResponseRead
 import com.rachmanforniandi.mahasiswacrudapp.model.update.ResponseUpdate
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import rachmanforniandi.healthnews.repositories.ReadRepository
 import rachmanforniandi.healthnews.repositories.UpdateRepository
 
 class UpdateViewModel:ViewModel() {
