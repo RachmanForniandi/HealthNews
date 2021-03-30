@@ -75,7 +75,7 @@
                     android:minLines="15"
                     android:textSize="14sp"/>
 
-                <Button
+                <!--<Button
                     android:id="@+id/btnAction"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -83,7 +83,7 @@
                     android:background="@android:color/holo_green_light"
                     android:text="Edit News"
                     android:textColor="@android:color/white"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"/>-->
             </LinearLayout>
 
         </ScrollView>
