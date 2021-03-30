@@ -59,7 +59,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun showResponse(it: ResponseLogin?) {
-        if (it?.message.equals("Register user berhasil.")){
+        if (it?.message.equals("Login berhasil.")){
             startActivity<MainActivity>()
             finish()
         }else{

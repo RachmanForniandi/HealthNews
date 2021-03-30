@@ -5,10 +5,12 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
@@ -18,12 +20,15 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
+import com.rachmanforniandi.mahasiswacrudapp.model.delete.ResponseDelete
 import com.rachmanforniandi.mahasiswacrudapp.model.read.ItemDataRead
 import com.rachmanforniandi.mahasiswacrudapp.model.read.ResponseRead
+import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.toast
 import rachmanforniandi.healthnews.R
 import rachmanforniandi.healthnews.adapters.HealthNewsAdapter
 import rachmanforniandi.healthnews.utility.SessionManager
@@ -43,9 +48,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
+        val toggle = ActionBarDrawerToggle(
+            this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
+        )
+        drawer_layout.addDrawerListener(toggle)
+        toggle.syncState()
+
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         sessionManager = SessionManager(this)
 
+        mainViewModel.showDataNews()
         observeMainPageData()
 
         /*val fab: FloatingActionButton = findViewById(R.id.btn_add_news_health)
@@ -56,28 +68,48 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         btn_add_news_health.setOnClickListener {
             startActivity<AddUpdateDataActivity>()
         }
+
+        swipeRefreshData.setOnRefreshListener {
+            val handler = Handler()
+            handler.postDelayed({
+                mainViewModel.showDataNews()
+                swipeRefreshData.isRefreshing = false
+            }, 3000)
+        }
         nav_view.setNavigationItemSelectedListener(this)
     }
 
     private fun observeMainPageData() {
+        mainViewModel.isLoading.observe(this,{showLoadingMainData(it)})
         mainViewModel.readResponder.observe(this,{displayDataHealthNews(it)})
+        mainViewModel.apiError.observe(this,{errorDisplayDataHealthNews(it)})
+
+    }
+
+    private fun showLoadingMainData(it: Boolean?) {
+        if (it == true) {
+            progress_main.visibility = View.VISIBLE
+        } else {
+            progress_main.visibility = View.GONE
+        }
     }
 
     private fun displayDataHealthNews(it: ResponseRead?) {
         listItemUser.adapter = HealthNewsAdapter(it?.data as ArrayList<ItemDataRead>,object :HealthNewsAdapter.onClickItem{
             override fun itemTipsClicked(item: ItemDataRead) {
                 startActivity<DetailActivity>("detailNews" to item)
-
             }
 
             override fun itemDeleteClicked(item: ItemDataRead) {
                 dialogToAskForDelete(item)
                 //item.id?.let { it1 -> mainViewModel.deleteDataNews(it1) }
             }
-
         })
-
         //listItemUser.let { swipeToDelete(it) }
+    }
+
+    private fun errorDisplayDataHealthNews(it: Throwable?) {
+        toast(it?.message ?: "")
     }
 
     private fun dialogToAskForDelete(item: ItemDataRead) {
@@ -85,11 +117,40 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             .setMessage("Are you sure you want to delete this data ?")
             .setPositiveButton("Yes"){ _, _ ->
                 item.id?.let { it1 -> mainViewModel.deleteDataNews(it1) }
+                observeDeleteData()
             }
             .setNegativeButton("No"){
                     dialog, _ ->
                 dialog.dismiss()
             }.show()
+    }
+
+    private fun observeDeleteData() {
+        mainViewModel.deleteResponder.observe(this,{deleteCertainData(it)})
+        mainViewModel.apiError.observe(this,{errorDelete(it)})
+        mainViewModel.isLoading.observe(this,{progressDelete(it)})
+    }
+
+    private fun progressDelete(it: Boolean?) {
+        if (it == true) {
+            progress_main.visibility = View.VISIBLE
+        } else {
+            progress_main.visibility = View.GONE
+        }
+    }
+
+
+    private fun deleteCertainData(it: ResponseDelete?) {
+        if (it?.message.equals("Data Berhasil Dihapus.")){
+            startActivity<MainActivity>()
+            finish()
+        }else{
+            toast(it?.message ?: "")
+        }
+    }
+
+    private fun errorDelete(it: Throwable?) {
+        toast(it?.message ?: "")
     }
 
 
@@ -106,35 +167,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             super.onBackPressed()
         }
     }
-
-    /*private fun swipeToDelete(recyclerView: RecyclerView){
-        val swipeToDeleteCallback = object : SwipeToDelete(){
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val adapter =listItemUser.adapter as HealthNewsAdapter
-                val deletedItem = adapter.dataHealthNews[viewHolder.adapterPosition]
-
-                //delete item
-                deletedItem.id?.let { mainViewModel.deleteDataNews(it) }
-                //restore deleted item
-                restoreDeletedData(viewHolder.itemView,deletedItem,viewHolder.adapterPosition)
-            }
-        }
-        val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallback)
-        itemTouchHelper.attachToRecyclerView(recyclerView)
-    }
-
-    private fun restoreDeletedData(
-        view: View,
-        deletedItem: ItemDataRead,
-        position: Int
-    ) {
-        val snackBar = Snackbar.make(view,"Deleted '${deletedItem.title}'", Snackbar.LENGTH_LONG)
-        snackBar.setAction("Undo"){
-            *//*mainViewModel.insertRestoreDataNews(deletedItem.id.let { mainViewModel.insertRestoreDataNews(deletedItem) })
-            listItemUser.adapter?.notifyItemChanged(position)*//*
-        }
-        snackBar.show()
-    }*/
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean{
         val id = item.itemId
