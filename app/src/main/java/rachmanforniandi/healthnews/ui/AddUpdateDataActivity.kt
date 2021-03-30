@@ -13,9 +13,11 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Parcelable
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
@@ -35,10 +37,21 @@ import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import com.karumi.dexter.listener.single.PermissionListener
+import com.rachmanforniandi.mahasiswacrudapp.model.insert.ResponseInsert
 import com.rachmanforniandi.mahasiswacrudapp.model.read.ItemDataRead
+import com.rachmanforniandi.mahasiswacrudapp.model.update.ResponseUpdate
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_add_update_data.*
 import kotlinx.android.synthetic.main.custom_dialog_image_selection.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.jetbrains.anko.sdk27.coroutines.onClick
+import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.toast
+import rachmanforniandi.healthnews.BuildConfig
 import rachmanforniandi.healthnews.R
 import rachmanforniandi.healthnews.viewmodels.InsertViewModel
 import rachmanforniandi.healthnews.viewmodels.RegisterViewModel
@@ -49,7 +62,7 @@ import java.io.IOException
 import java.io.OutputStream
 import java.util.*
 
-class AddUpdateDataActivity : AppCompatActivity() {
+class AddUpdateDataActivity : AppCompatActivity(), View.OnClickListener {
 
     companion object {
         private const val CAMERA = 1
@@ -65,6 +78,7 @@ class AddUpdateDataActivity : AppCompatActivity() {
     private var mImgPath:String =""
     private lateinit var viewModel1: InsertViewModel
     private lateinit var viewModel2:UpdateViewModel
+    private lateinit var bundleData:ItemDataRead
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,41 +87,10 @@ class AddUpdateDataActivity : AppCompatActivity() {
         viewModel1 = ViewModelProvider(this).get(InsertViewModel::class.java)
         viewModel2 = ViewModelProvider(this).get(UpdateViewModel::class.java)
 
-        val bundleData = intent.getSerializableExtra("detailNews")as ItemDataRead?
+        bundleData = intent.getSerializableExtra("detailNews")as ItemDataRead
 
-        iv_add_image.onClick {
-            customOptionImageInputSelectionDialog()
-        }
-
-
-
-        if (bundleData == null){
-
-            btnAction.text ="Tambah Berita"
-
-            btnAction.onClick {
-               /* corePresenter.partToAddData(etNik.text.toString(),
-                    etNama.text.toString(), etJurusan.text.toString(), etFakultas.text.toString(), etNoHp.text.toString(), etAlamat.text.toString(), etHobi.text.toString())*/
-
-            }
-
-        }else{
-            btnAction.text ="Update"
-
-            val item = bundleData as ItemDataRead?
-            /*etNama.setText(item?.nama)
-            etNik.setText(item?.nik)
-            etJurusan.setText(item?.jurusan)
-            etFakultas.setText(item?.fakultas)
-            etNoHp.setText(item?.noHp)
-            etAlamat.setText(item?.alamat)
-            etHobi.setText(item?.hobi)*/
-
-            btnAction.onClick {
-
-            }
-        }
-
+        iv_add_image.setOnClickListener(this)
+        btnAction.setOnClickListener(this)
 
     }
 
@@ -274,5 +257,124 @@ class AddUpdateDataActivity : AppCompatActivity() {
         return file.absolutePath
     }
 
+    override fun onClick(view: View?) {
+        if (view != null){
+            when(view.id){
+                R.id.iv_add_image->{
+                    customOptionImageInputSelectionDialog()
+                    return
+                }
+
+                R.id.btnAction->{
+                    if (bundleData == null){
+
+                        btnAction.text ="Submit News"
+
+                        btnAction.onClick {
+                            val title:RequestBody = etTitle.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull())
+                            val contentNews:RequestBody = etContent_news.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull())
+                            val author:RequestBody = etAuthor.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull())
+
+                            val fileInsert = File(mImgPath)
+                            val requestFile:RequestBody = fileInsert.asRequestBody("multipart/form-data".toMediaTypeOrNull())
+                            val bodyInsert:MultipartBody.Part = MultipartBody.Part.createFormData("image",fileInsert.name,requestFile)
+                            viewModel1.insertDataNews(title,contentNews,author,bodyInsert)
+                        }
+                        observeInsertData()
+
+                    }else{
+                        btnAction.text ="Update News"
+
+                        etTitle.setText(bundleData.title)
+                        etContent_news.setText(bundleData.content_news)
+                        etAuthor.setText(bundleData.author)
+
+                        Glide.with(this)
+                                .load(BuildConfig.URL_IMAGE_DATA + bundleData.image)
+                                .error(R.drawable.place_holder)
+                                .into(iv_display_image)
+
+                        btnAction.onClick {
+                            val fileUpdate = File(mImgPath)
+                            val requestFile:RequestBody = fileUpdate.asRequestBody("multipart/form-data".toMediaTypeOrNull())
+                            val bodyUpdate:MultipartBody.Part = MultipartBody.Part.createFormData("image",fileUpdate.name,requestFile)
+
+                            viewModel2.updateDataNews((bundleData.id ?:"".toRequestBody("multipart/form-data".toMediaTypeOrNull())) as RequestBody,
+                                    etTitle.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),
+                                    etContent_news.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),
+                                    etAuthor.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),bodyUpdate)
+
+                        }
+
+                        observeUpdateData()
+                    }
+                }
+
+            }
+        }
+    }
+
+    private fun observeInsertData() {
+        viewModel1.isLoading.observe(this,{loadingProcessInsert(it)})
+        viewModel1.insertResponder.observe(this,{showResponseInsert(it)})
+        viewModel1.apiError.observe(this,{errorResponseInsert(it)})
+        viewModel1.isEmptyInput.observe(this, { showIsEmptyForInsert(it) })
+    }
+
+
+
+
+    private fun observeUpdateData() {
+        viewModel2.isLoading.observe(this,{loadingProcessUpdate(it)})
+        viewModel2.updateResponder.observe(this,{showResponseUpdate(it)})
+        viewModel2.apiError.observe(this,{errorResponseUpdate(it)})
+        viewModel2.isEmptyInput.observe(this, { showIsEmptyForUpdate(it) })
+    }
+
+    private fun showIsEmptyForUpdate(it: Boolean) {
+        if (it)toast("Mohon isi semua input semua informasi yang ada untuk menambahkan data")
+    }
+
+    private fun showIsEmptyForInsert(it: Boolean) {
+        if (it)toast("Mohon isi semua input semua informasi yang ada untuk mengubah data")
+    }
+
+    private fun loadingProcessInsert(it: Boolean?) {
+        if (it == true) {
+            progress_processing_data.visibility =View.VISIBLE
+        } else {
+            progress_processing_data.visibility = View.GONE
+        }
+    }
+    private fun showResponseInsert(it: ResponseInsert?) {
+        if (it?.message.equals("Data Berhasil Ditambahkan.")){
+            startActivity<MainActivity>()
+            finish()
+        }else{
+            toast(it?.message ?:"")
+        }
+    }
+    private fun errorResponseInsert(it: Throwable?) {
+        toast(it?.message ?: "")
+    }
+    private fun loadingProcessUpdate(it: Boolean?) {
+        if (it == true) {
+            progress_processing_data.visibility =View.VISIBLE
+        } else {
+            progress_processing_data.visibility = View.GONE
+        }
+    }
+    private fun showResponseUpdate(it: ResponseUpdate?) {
+        if (it?.message.equals("Data Berhasil diperbarui.")){
+            startActivity<MainActivity>()
+            finish()
+        }else{
+            toast(it?.message ?:"")
+        }
+
+    }
+    private fun errorResponseUpdate(it: Throwable?) {
+        toast(it?.message ?: "")
+    }
 
 }

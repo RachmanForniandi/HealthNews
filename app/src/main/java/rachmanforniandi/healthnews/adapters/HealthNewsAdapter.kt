@@ -28,7 +28,7 @@ class HealthNewsAdapter(var dataHealthNews: List<ItemDataRead>, val clicked: onC
         val item = dataHealthNews[position]
         holder.headLineText.text = item.title
         holder.authorText.text = item.author
-        val itemId = item.id
+        //val itemId = item.id
 
         val imgNews = item.image
         Picasso.get()

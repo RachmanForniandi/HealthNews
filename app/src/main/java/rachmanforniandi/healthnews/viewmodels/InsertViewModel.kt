@@ -15,6 +15,7 @@ class InsertViewModel:ViewModel() {
     var apiError = MutableLiveData<Throwable>()
     var isLoading = MutableLiveData<Boolean>()
     var insertResponder = MutableLiveData<ResponseInsert>()
+    var isEmptyInput = MutableLiveData<Boolean>()
 
     fun insertDataNews(title: RequestBody, content_news: RequestBody,
                        author: RequestBody, img: MultipartBody.Part){

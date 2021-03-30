@@ -106,7 +106,12 @@
                         android:minLines="15"
                         android:textSize="14sp"/>
                 </com.google.android.material.textfield.TextInputLayout>
-
+                <ProgressBar
+                    android:id="@+id/progress_processing_data"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone"/>
                 <Button
                     android:id="@+id/btnAction"
                     android:layout_width="match_parent"
@@ -115,6 +120,7 @@
                     android:background="@android:color/holo_green_light"
                     android:textColor="@android:color/white"
                     android:textStyle="bold"/>
+
             </LinearLayout>
 
         </ScrollView>

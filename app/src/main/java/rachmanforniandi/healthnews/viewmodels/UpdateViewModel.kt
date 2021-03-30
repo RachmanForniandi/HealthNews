@@ -12,6 +12,7 @@ class UpdateViewModel:ViewModel() {
     var apiError = MutableLiveData<Throwable>()
     var isLoading = MutableLiveData<Boolean>()
     var updateResponder = MutableLiveData<ResponseUpdate>()
+    var isEmptyInput = MutableLiveData<Boolean>()
 
     fun updateDataNews(id: RequestBody, title: RequestBody, content_news: RequestBody,
                      author: RequestBody, img: MultipartBody.Part){
