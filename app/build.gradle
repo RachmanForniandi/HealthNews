@@ -16,8 +16,8 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField "String", "URL_SERVICE", "\"http://192.168.0.6/eduhealth/\""
-        buildConfigField "String", "URL_IMAGE_DATA","\"http://192.168.0.6/eduhealth/image/\""
+        buildConfigField "String", "URL_SERVICE", "\"http://192.168.1.19/eduhealth/\""
+        buildConfigField "String", "URL_IMAGE_DATA","\"http://192.168.1.19/eduhealth/image/\""
     }
 
     buildTypes {

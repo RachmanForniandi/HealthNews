@@ -17,6 +17,7 @@ import android.os.Parcelable
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -88,16 +89,76 @@ class AddUpdateDataActivity : AppCompatActivity(), View.OnClickListener {
         viewModel2 = ViewModelProvider(this).get(UpdateViewModel::class.java)
 
         bundleData = intent.getSerializableExtra("detailNews")as ItemDataRead
+        Log.e("checkBundle",""+bundleData)
 
         iv_add_image.setOnClickListener(this)
         btnAction.setOnClickListener(this)
 
     }
 
-    private fun customOptionImageInputSelectionDialog() {
-        val optionTakeImageDialog= Dialog(this)
-        optionTakeImageDialog.setContentView(R.layout.custom_dialog_image_selection)
+    override fun onClick(view: View?) {
+        if (view != null){
+            when(view.id){
+                R.id.iv_add_image->{
+                    customOptionImageInputSelectionDialog()
+                    return
+                }
 
+                R.id.btnAction->{
+                    if (bundleData == null){
+
+                        btnAction.text ="Submit News"
+
+                        btnAction.onClick {
+                            val title:RequestBody = etTitle.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull())
+                            val contentNews:RequestBody = etContent_news.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull())
+                            val author:RequestBody = etAuthor.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull())
+
+                            val fileInsert = File(mImgPath)
+                            val requestFile:RequestBody = fileInsert.asRequestBody("multipart/form-data".toMediaTypeOrNull())
+                            val bodyInsert:MultipartBody.Part = MultipartBody.Part.createFormData("image",fileInsert.name,requestFile)
+                            viewModel1.insertDataNews(title,contentNews,author,bodyInsert)
+                        }
+                        observeInsertData()
+
+                    }else{
+                        btnAction.text ="Update News"
+
+                        etTitle.setText(bundleData.title)
+                        etContent_news.setText(bundleData.content_news)
+                        etAuthor.setText(bundleData.author)
+
+                        Glide.with(this)
+                            .load(BuildConfig.URL_IMAGE_DATA + bundleData.image)
+                            .error(R.drawable.place_holder)
+                            .into(iv_display_image)
+
+                        btnAction.onClick {
+                            val fileUpdate = File(mImgPath)
+                            val requestFile:RequestBody = fileUpdate.asRequestBody("multipart/form-data".toMediaTypeOrNull())
+                            val bodyUpdate:MultipartBody.Part = MultipartBody.Part.createFormData("image",fileUpdate.name,requestFile)
+
+                            viewModel2.updateDataNews((bundleData.id ?:"".toRequestBody("multipart/form-data".toMediaTypeOrNull())) as RequestBody,
+                                etTitle.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),
+                                etContent_news.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),
+                                etAuthor.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),bodyUpdate)
+
+                        }
+
+                        observeUpdateData()
+                    }
+                }
+
+            }
+        }
+    }
+
+    private fun customOptionImageInputSelectionDialog() {
+        val optionTakeImageDialog=  LayoutInflater.from(this@AddUpdateDataActivity).inflate(R.layout.custom_dialog_image_selection,null)
+
+        val dialogBuilder =AlertDialog.Builder(this@AddUpdateDataActivity)
+            .setView(optionTakeImageDialog)
+        val optionDialog = dialogBuilder.show()
         txt_option_camera.setOnClickListener {
             //Toast.makeText(this,"Option Camera Selected",Toast.LENGTH_SHORT).show()
             Dexter.withContext(this@AddUpdateDataActivity)
@@ -123,7 +184,7 @@ class AddUpdateDataActivity : AppCompatActivity(), View.OnClickListener {
                     }
                 }).onSameThread()
                 .check()
-            optionTakeImageDialog.dismiss()
+            optionDialog.dismiss()
         }
 
         txt_option_gallery.setOnClickListener {
@@ -151,9 +212,9 @@ class AddUpdateDataActivity : AppCompatActivity(), View.OnClickListener {
                     }
                 }).onSameThread()
                 .check()
-            optionTakeImageDialog.dismiss()
+            optionDialog.dismiss()
         }
-        optionTakeImageDialog.show()
+        optionDialog.show()
     }
 
     private fun showRationalDialogForPermissions() {
@@ -257,62 +318,6 @@ class AddUpdateDataActivity : AppCompatActivity(), View.OnClickListener {
         return file.absolutePath
     }
 
-    override fun onClick(view: View?) {
-        if (view != null){
-            when(view.id){
-                R.id.iv_add_image->{
-                    customOptionImageInputSelectionDialog()
-                    return
-                }
-
-                R.id.btnAction->{
-                    if (bundleData == null){
-
-                        btnAction.text ="Submit News"
-
-                        btnAction.onClick {
-                            val title:RequestBody = etTitle.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull())
-                            val contentNews:RequestBody = etContent_news.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull())
-                            val author:RequestBody = etAuthor.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull())
-
-                            val fileInsert = File(mImgPath)
-                            val requestFile:RequestBody = fileInsert.asRequestBody("multipart/form-data".toMediaTypeOrNull())
-                            val bodyInsert:MultipartBody.Part = MultipartBody.Part.createFormData("image",fileInsert.name,requestFile)
-                            viewModel1.insertDataNews(title,contentNews,author,bodyInsert)
-                        }
-                        observeInsertData()
-
-                    }else{
-                        btnAction.text ="Update News"
-
-                        etTitle.setText(bundleData.title)
-                        etContent_news.setText(bundleData.content_news)
-                        etAuthor.setText(bundleData.author)
-
-                        Glide.with(this)
-                                .load(BuildConfig.URL_IMAGE_DATA + bundleData.image)
-                                .error(R.drawable.place_holder)
-                                .into(iv_display_image)
-
-                        btnAction.onClick {
-                            val fileUpdate = File(mImgPath)
-                            val requestFile:RequestBody = fileUpdate.asRequestBody("multipart/form-data".toMediaTypeOrNull())
-                            val bodyUpdate:MultipartBody.Part = MultipartBody.Part.createFormData("image",fileUpdate.name,requestFile)
-
-                            viewModel2.updateDataNews((bundleData.id ?:"".toRequestBody("multipart/form-data".toMediaTypeOrNull())) as RequestBody,
-                                    etTitle.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),
-                                    etContent_news.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),
-                                    etAuthor.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),bodyUpdate)
-
-                        }
-
-                        observeUpdateData()
-                    }
-                }
-
-            }
-        }
-    }
 
     private fun observeInsertData() {
         viewModel1.isLoading.observe(this,{loadingProcessInsert(it)})
