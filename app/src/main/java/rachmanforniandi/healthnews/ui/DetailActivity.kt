@@ -28,6 +28,7 @@ class DetailActivity : AppCompatActivity() {
         setContentView(R.layout.activity_detail)
 
         dataDetail = intent.getSerializableExtra("detailNews")as ItemDataRead
+
         etDetailTitle.text = dataDetail?.title
         etDetailContentNews.text = dataDetail?.content_news
         etDetailAuthor.text = dataDetail?.author

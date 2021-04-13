@@ -13,17 +13,14 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Parcelable
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -41,7 +38,6 @@ import com.karumi.dexter.listener.single.PermissionListener
 import com.rachmanforniandi.mahasiswacrudapp.model.insert.ResponseInsert
 import com.rachmanforniandi.mahasiswacrudapp.model.read.ItemDataRead
 import com.rachmanforniandi.mahasiswacrudapp.model.update.ResponseUpdate
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_add_update_data.*
 import kotlinx.android.synthetic.main.custom_dialog_image_selection.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -55,7 +51,6 @@ import org.jetbrains.anko.toast
 import rachmanforniandi.healthnews.BuildConfig
 import rachmanforniandi.healthnews.R
 import rachmanforniandi.healthnews.viewmodels.InsertViewModel
-import rachmanforniandi.healthnews.viewmodels.RegisterViewModel
 import rachmanforniandi.healthnews.viewmodels.UpdateViewModel
 import java.io.File
 import java.io.FileOutputStream
@@ -63,7 +58,7 @@ import java.io.IOException
 import java.io.OutputStream
 import java.util.*
 
-class AddUpdateDataActivity : AppCompatActivity(), View.OnClickListener {
+class AddUpdateDataActivity : AppCompatActivity(){
 
     companion object {
         private const val CAMERA = 1
@@ -79,87 +74,76 @@ class AddUpdateDataActivity : AppCompatActivity(), View.OnClickListener {
     private var mImgPath:String =""
     private lateinit var viewModel1: InsertViewModel
     private lateinit var viewModel2:UpdateViewModel
-    private lateinit var bundleData:ItemDataRead
+    //private lateinit var bundleData:ItemDataRead
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_update_data)
 
-        viewModel1 = ViewModelProvider(this).get(InsertViewModel::class.java)
-        viewModel2 = ViewModelProvider(this).get(UpdateViewModel::class.java)
-
-        bundleData = intent.getSerializableExtra("detailNews")as ItemDataRead
+        val bundleData = intent.getSerializableExtra("detailNews")as ItemDataRead?
         Log.e("checkBundle",""+bundleData)
 
-        iv_add_image.setOnClickListener(this)
-        btnAction.setOnClickListener(this)
+        viewModel1 = ViewModelProvider(this).get(InsertViewModel::class.java)
+        viewModel2 = ViewModelProvider(this).get(UpdateViewModel::class.java)
+        
+        /*iv_add_image.setOnClickListener(this)
+        btnAction.setOnClickListener(this)*/
 
-    }
+        if (bundleData == null){
 
-    override fun onClick(view: View?) {
-        if (view != null){
-            when(view.id){
-                R.id.iv_add_image->{
-                    customOptionImageInputSelectionDialog()
-                    return
-                }
+            btnAction.text ="Submit News"
 
-                R.id.btnAction->{
-                    if (bundleData == null){
+            btnAction.onClick {
+                val title:RequestBody = etTitle.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull())
+                val contentNews:RequestBody = etContent_news.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull())
+                val author:RequestBody = etAuthor.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull())
 
-                        btnAction.text ="Submit News"
+                val fileInsert = File(mImgPath)
+                val requestFile:RequestBody = fileInsert.asRequestBody("multipart/form-data".toMediaTypeOrNull())
+                val bodyInsert:MultipartBody.Part = MultipartBody.Part.createFormData("image",fileInsert.name,requestFile)
+                viewModel1.insertDataNews(title,contentNews,author,bodyInsert)
 
-                        btnAction.onClick {
-                            val title:RequestBody = etTitle.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull())
-                            val contentNews:RequestBody = etContent_news.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull())
-                            val author:RequestBody = etAuthor.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull())
-
-                            val fileInsert = File(mImgPath)
-                            val requestFile:RequestBody = fileInsert.asRequestBody("multipart/form-data".toMediaTypeOrNull())
-                            val bodyInsert:MultipartBody.Part = MultipartBody.Part.createFormData("image",fileInsert.name,requestFile)
-                            viewModel1.insertDataNews(title,contentNews,author,bodyInsert)
-                        }
-                        observeInsertData()
-
-                    }else{
-                        btnAction.text ="Update News"
-
-                        etTitle.setText(bundleData.title)
-                        etContent_news.setText(bundleData.content_news)
-                        etAuthor.setText(bundleData.author)
-
-                        Glide.with(this)
-                            .load(BuildConfig.URL_IMAGE_DATA + bundleData.image)
-                            .error(R.drawable.place_holder)
-                            .into(iv_display_image)
-
-                        btnAction.onClick {
-                            val fileUpdate = File(mImgPath)
-                            val requestFile:RequestBody = fileUpdate.asRequestBody("multipart/form-data".toMediaTypeOrNull())
-                            val bodyUpdate:MultipartBody.Part = MultipartBody.Part.createFormData("image",fileUpdate.name,requestFile)
-
-                            viewModel2.updateDataNews((bundleData.id ?:"".toRequestBody("multipart/form-data".toMediaTypeOrNull())) as RequestBody,
-                                etTitle.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),
-                                etContent_news.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),
-                                etAuthor.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),bodyUpdate)
-
-                        }
-
-                        observeUpdateData()
-                    }
-                }
-
+                observeInsertData()
             }
+
+
+        }else if (bundleData != null){
+            btnAction.text ="Update News"
+
+            etTitle.setText(bundleData.title)
+            etContent_news.setText(bundleData.content_news)
+            etAuthor.setText(bundleData.author)
+
+            Glide.with(this)
+                .load(BuildConfig.URL_IMAGE_DATA + bundleData.image)
+                .error(R.drawable.place_holder)
+                .into(iv_display_image)
+
+            btnAction.onClick {
+                val fileUpdate = File(mImgPath)
+                val requestFile:RequestBody = fileUpdate.asRequestBody("multipart/form-data".toMediaTypeOrNull())
+                val bodyUpdate:MultipartBody.Part = MultipartBody.Part.createFormData("image",fileUpdate.name,requestFile)
+
+                viewModel2.updateDataNews((bundleData.id ?:"".toRequestBody("multipart/form-data".toMediaTypeOrNull())) as RequestBody,
+                    etTitle.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),
+                    etContent_news.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),
+                    etAuthor.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),bodyUpdate)
+
+                observeUpdateData()
+            }
+        }
+
+
+        iv_add_image.onClick {
+            customOptionImageInputSelectionDialog()
         }
     }
 
     private fun customOptionImageInputSelectionDialog() {
-        val optionTakeImageDialog=  LayoutInflater.from(this@AddUpdateDataActivity).inflate(R.layout.custom_dialog_image_selection,null)
+        val optionTakeImageDialog= Dialog(this)
+        optionTakeImageDialog.setContentView(R.layout.custom_dialog_image_selection)
 
-        val dialogBuilder =AlertDialog.Builder(this@AddUpdateDataActivity)
-            .setView(optionTakeImageDialog)
-        val optionDialog = dialogBuilder.show()
-        txt_option_camera.setOnClickListener {
+        optionTakeImageDialog.txt_option_camera.setOnClickListener {
             //Toast.makeText(this,"Option Camera Selected",Toast.LENGTH_SHORT).show()
             Dexter.withContext(this@AddUpdateDataActivity)
                 .withPermissions(
@@ -184,10 +168,10 @@ class AddUpdateDataActivity : AppCompatActivity(), View.OnClickListener {
                     }
                 }).onSameThread()
                 .check()
-            optionDialog.dismiss()
+            optionTakeImageDialog.dismiss()
         }
 
-        txt_option_gallery.setOnClickListener {
+        optionTakeImageDialog.txt_option_gallery.setOnClickListener {
             //Toast.makeText(this,"Option Gallery Selected",Toast.LENGTH_SHORT).show()
 
             Dexter.withContext(this@AddUpdateDataActivity)
@@ -212,9 +196,9 @@ class AddUpdateDataActivity : AppCompatActivity(), View.OnClickListener {
                     }
                 }).onSameThread()
                 .check()
-            optionDialog.dismiss()
+            optionTakeImageDialog.dismiss()
         }
-        optionDialog.show()
+        optionTakeImageDialog.show()
     }
 
     private fun showRationalDialogForPermissions() {
@@ -326,9 +310,6 @@ class AddUpdateDataActivity : AppCompatActivity(), View.OnClickListener {
         viewModel1.isEmptyInput.observe(this, { showIsEmptyForInsert(it) })
     }
 
-
-
-
     private fun observeUpdateData() {
         viewModel2.isLoading.observe(this,{loadingProcessUpdate(it)})
         viewModel2.updateResponder.observe(this,{showResponseUpdate(it)})
@@ -351,6 +332,7 @@ class AddUpdateDataActivity : AppCompatActivity(), View.OnClickListener {
             progress_processing_data.visibility = View.GONE
         }
     }
+
     private fun showResponseInsert(it: ResponseInsert?) {
         if (it?.message.equals("Data Berhasil Ditambahkan.")){
             startActivity<MainActivity>()
@@ -359,9 +341,11 @@ class AddUpdateDataActivity : AppCompatActivity(), View.OnClickListener {
             toast(it?.message ?:"")
         }
     }
+
     private fun errorResponseInsert(it: Throwable?) {
         toast(it?.message ?: "")
     }
+
     private fun loadingProcessUpdate(it: Boolean?) {
         if (it == true) {
             progress_processing_data.visibility =View.VISIBLE
@@ -369,6 +353,7 @@ class AddUpdateDataActivity : AppCompatActivity(), View.OnClickListener {
             progress_processing_data.visibility = View.GONE
         }
     }
+
     private fun showResponseUpdate(it: ResponseUpdate?) {
         if (it?.message.equals("Data Berhasil diperbarui.")){
             startActivity<MainActivity>()
@@ -378,6 +363,7 @@ class AddUpdateDataActivity : AppCompatActivity(), View.OnClickListener {
         }
 
     }
+
     private fun errorResponseUpdate(it: Throwable?) {
         toast(it?.message ?: "")
     }
