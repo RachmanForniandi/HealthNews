@@ -49,4 +49,5 @@
     <string name="logout">Logout</string>
     <string name="tombol_tambah_data">tombol_tambah_data</string>
     <string name="submit_news">Submit News</string>
+    <string name="button_delete">button delete</string>
 </resources>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/_280sdp"
+    android:layout_height="@dimen/_260sdp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_margin="16dp"
@@ -14,7 +14,7 @@
         <FrameLayout
             android:id="@+id/line_first"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/_200sdp"
+            android:layout_height="@dimen/_180sdp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -33,12 +33,14 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|top"
                 android:padding="@dimen/_16sdp"
-                android:src="@drawable/ic_close"/>
+                android:src="@drawable/ic_close"
+                android:contentDescription="@string/button_delete" />
         </FrameLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_4sdp"
             app:layout_constraintTop_toBottomOf="@id/line_first">
 
             <TextView
@@ -54,7 +56,7 @@
                 android:id="@+id/line_author"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="8dp"
                 android:orientation="horizontal"
                 android:layout_below="@id/txt_headline_news"
                 android:weightSum="1">

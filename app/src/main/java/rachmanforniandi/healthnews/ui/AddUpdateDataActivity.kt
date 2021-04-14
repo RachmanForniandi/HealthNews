@@ -85,7 +85,7 @@ class AddUpdateDataActivity : AppCompatActivity(){
 
         viewModel1 = ViewModelProvider(this).get(InsertViewModel::class.java)
         viewModel2 = ViewModelProvider(this).get(UpdateViewModel::class.java)
-        
+
         /*iv_add_image.setOnClickListener(this)
         btnAction.setOnClickListener(this)*/
 
@@ -124,7 +124,10 @@ class AddUpdateDataActivity : AppCompatActivity(){
                 val requestFile:RequestBody = fileUpdate.asRequestBody("multipart/form-data".toMediaTypeOrNull())
                 val bodyUpdate:MultipartBody.Part = MultipartBody.Part.createFormData("image",fileUpdate.name,requestFile)
 
-                viewModel2.updateDataNews((bundleData.id ?:"".toRequestBody("multipart/form-data".toMediaTypeOrNull())) as RequestBody,
+                val idData = bundleData.id ?:""
+                val idConvert = idData.toRequestBody("multipart/form-data".toMediaTypeOrNull())
+
+                viewModel2.updateDataNews(idConvert,
                     etTitle.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),
                     etContent_news.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),
                     etAuthor.text.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull()),bodyUpdate)

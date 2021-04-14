@@ -61,11 +61,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mainViewModel.showDataNews()
         observeMainPageData()
 
-        /*val fab: FloatingActionButton = findViewById(R.id.btn_add_news_health)
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }*/
         btn_add_news_health.onClick {
             startActivity<AddUpdateDataActivity>()
         }
@@ -169,17 +164,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    override fun onNavigationItemSelected(item: MenuItem): Boolean{
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        // Handle navigation view item clicks here.
         val id = item.itemId
         if (id == R.id.nav_logout) {
             sessionManager.logOut()
-            val intent = Intent(this@MainActivity, LoginActivity::class.java)
+            var intent = Intent(this@MainActivity, LoginActivity::class.java)
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)
 
-        }
+        } /*else if (id == R.id.nav_notif) {
+            startActivity(Intent(this@MainActivity, NotifActivity::class.java))
+        } else if (id == R.id.nav_transaksi) {
+            startActivity(Intent(this@MainActivity, TransactionActivity::class.java))
+        } else if (id == R.id.nav_profile) {
+            startActivity(Intent(this@MainActivity, ProfileActivity::class.java))
+        } else if (id == R.id.nav_logout) {
+            AuthState.updateToken(this@MainActivity, "")
+            App.sharedPrefManager.userLogout()
+            AuthState.isLoggedOut(menu)
+        }*/
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
         drawer.closeDrawer(GravityCompat.START)
         return true
