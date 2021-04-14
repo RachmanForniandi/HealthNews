@@ -40,7 +40,7 @@ interface APIService {
 
     @Multipart
     @POST("update.php")
-    fun updateData(@Field("id")id:RequestBody,
+    fun updateData(@Part("id")id:RequestBody,
                    @Part("title")title:RequestBody,
                    @Part("content_news")content_news:RequestBody,
                    @Part("author")author:RequestBody,

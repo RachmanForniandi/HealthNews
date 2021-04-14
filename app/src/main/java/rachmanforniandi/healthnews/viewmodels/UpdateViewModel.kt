@@ -2,11 +2,9 @@ package rachmanforniandi.healthnews.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.rachmanforniandi.mahasiswacrudapp.model.read.ResponseRead
 import com.rachmanforniandi.mahasiswacrudapp.model.update.ResponseUpdate
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import rachmanforniandi.healthnews.repositories.ReadRepository
 import rachmanforniandi.healthnews.repositories.UpdateRepository
 
 class UpdateViewModel:ViewModel() {
@@ -14,6 +12,7 @@ class UpdateViewModel:ViewModel() {
     var apiError = MutableLiveData<Throwable>()
     var isLoading = MutableLiveData<Boolean>()
     var updateResponder = MutableLiveData<ResponseUpdate>()
+    var isEmptyInput = MutableLiveData<Boolean>()
 
     fun updateDataNews(id: RequestBody, title: RequestBody, content_news: RequestBody,
                      author: RequestBody, img: MultipartBody.Part){

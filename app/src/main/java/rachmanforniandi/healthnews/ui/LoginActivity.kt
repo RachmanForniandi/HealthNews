@@ -6,15 +6,12 @@ import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import com.rachmanforniandi.mahasiswacrudapp.model.login.ResponseLogin
 import kotlinx.android.synthetic.main.activity_login.*
-import kotlinx.android.synthetic.main.activity_register.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
-import rachmanforniandi.healthnews.MainActivity
 import rachmanforniandi.healthnews.R
 import rachmanforniandi.healthnews.utility.SessionManager
 import rachmanforniandi.healthnews.viewmodels.LoginViewModel
-import rachmanforniandi.healthnews.viewmodels.RegisterViewModel
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var viewModel: LoginViewModel
@@ -62,7 +59,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun showResponse(it: ResponseLogin?) {
-        if (it?.message.equals("Register user berhasil.")){
+        if (it?.message.equals("Login berhasil.")){
             startActivity<MainActivity>()
             finish()
         }else{

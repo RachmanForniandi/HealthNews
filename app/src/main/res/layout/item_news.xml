@@ -1,59 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="280dp"
+    android:layout_height="@dimen/_260sdp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_margin="16dp"
     app:cardCornerRadius="16dp"
     app:cardElevation="8dp">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:id="@+id/img_news"
+        android:layout_height="match_parent">
+        <FrameLayout
+            android:id="@+id/line_first"
             android:layout_width="match_parent"
-            android:layout_height="160dp"
-            android:layout_marginTop="12dp"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/placeholder_2"
-            />
+            android:layout_height="@dimen/_180sdp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/txt_headline_news"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/img_news"
-            android:layout_marginTop="28dp"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            tools:text="Judul Berita Kesehatan Hari Ini" />
+            <ImageView
+                android:id="@+id/img_news"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/dish_image_background"
+                android:scaleType="fitXY"
+                android:contentDescription="@string/image_news"/>
 
-        <LinearLayout
-            android:id="@+id/line_author"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal"
-            android:layout_below="@id/txt_headline_news"
-            android:weightSum="1">
-
-            <TextView
-                android:id="@+id/lbl_author_by"
+            <ImageView
+                android:id="@+id/btn_delete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Penulis:"
-                android:layout_weight="0.01"/>
+                android:layout_gravity="end|top"
+                android:padding="@dimen/_16sdp"
+                android:src="@drawable/ic_close"
+                android:contentDescription="@string/button_delete" />
+        </FrameLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_4sdp"
+            app:layout_constraintTop_toBottomOf="@id/line_first">
 
             <TextView
-                android:id="@+id/txt_author"
+                android:id="@+id/txt_headline_news"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="Kompas"
-                android:layout_weight="0.99"/>
-        </LinearLayout>
+                android:layout_marginTop="28dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="Judul Berita Kesehatan Hari Ini" />
+
+            <LinearLayout
+                android:id="@+id/line_author"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:layout_below="@id/txt_headline_news"
+                android:weightSum="1">
+
+                <TextView
+                    android:id="@+id/lbl_author_by"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Penulis:"
+                    android:layout_weight="0.01"/>
+
+                <TextView
+                    android:id="@+id/txt_author"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="Kompas"
+                    android:layout_weight="0.99"/>
+            </LinearLayout>
 
 
 
@@ -61,6 +82,8 @@
 
 
 
-    </RelativeLayout>
+        </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </androidx.cardview.widget.CardView>

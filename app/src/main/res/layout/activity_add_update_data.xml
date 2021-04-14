@@ -31,16 +31,15 @@
                     android:layout_marginBottom="28dp">
 
                     <ImageView
-                        android:id="@+id/iv_dish_image"
+                        android:id="@+id/iv_display_image"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/placeholder_2"
+                        android:layout_height="match_parent"
                         android:background="@color/dish_image_background"
-                        android:scaleType="fitXY"
-                        android:contentDescription="@string/image_news" />
+                        android:contentDescription="@string/image_news"
+                        android:scaleType="fitXY" />
 
                     <ImageView
-                        android:id="@+id/iv_add_dish_image"
+                        android:id="@+id/iv_add_image"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end|bottom"
@@ -104,19 +103,24 @@
                         android:importantForAutofill="no"
                         tools:ignore="LabelFor"
                         android:inputType="textMultiLine"
-                        android:minLines="8"
+                        android:minLines="15"
                         android:textSize="14sp"/>
                 </com.google.android.material.textfield.TextInputLayout>
-
+                <ProgressBar
+                    android:id="@+id/progress_processing_data"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone"/>
                 <Button
                     android:id="@+id/btnAction"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:background="@android:color/holo_green_light"
-                    android:text="Save News"
                     android:textColor="@android:color/white"
                     android:textStyle="bold"/>
+
             </LinearLayout>
 
         </ScrollView>
